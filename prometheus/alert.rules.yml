@@ -35,7 +35,7 @@ groups:
       # Triggers when the application health check fails
       - alert: ApplicationDown
         expr: |
-          up{job="nodejs-app"} == 0
+          up{job="nodejs-app", instance="app:3002"} == 0
         for: 30s
         labels:
           severity: critical
@@ -48,7 +48,7 @@ groups:
       # Triggers when the custom health gauge reports unhealthy
       - alert: ApplicationUnhealthy
         expr: |
-          app_health_status{job="nodejs-app"} == 0
+          app_health_status{job="nodejs-app", instance="app:3002"} == 0
         for: 30s
         labels:
           severity: critical
@@ -61,7 +61,7 @@ groups:
       # Triggers when 95th percentile latency exceeds 1 second
       - alert: HighRequestLatency
         expr: |
-          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="nodejs-app"}[5m])) by (le)) > 1
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="nodejs-app", instance="app:3002"}[5m])) by (le)) > 1
         for: 2m
         labels:
           severity: warning
@@ -74,7 +74,7 @@ groups:
       # Triggers when 5xx error rate exceeds 5%
       - alert: HighErrorRate
         expr: |
-          sum(rate(http_requests_total{job="nodejs-app",status_code=~"5.."}[5m])) / sum(rate(http_requests_total{job="nodejs-app"}[5m])) * 100 > 5
+          sum(rate(http_requests_total{job="nodejs-app", instance="app:3002",status_code=~"5.."}[5m])) / sum(rate(http_requests_total{job="nodejs-app", instance="app:3002"}[5m])) * 100 > 5
         for: 1m
         labels:
           severity: warning

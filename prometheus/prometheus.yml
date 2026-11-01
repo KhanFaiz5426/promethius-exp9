@@ -33,7 +33,7 @@ scrape_configs:
     metrics_path: '/metrics'
     scrape_interval: 5s
     static_configs:
-      - targets: ['app:3000']
+      - targets: ['app:3002']
         labels:
           service: 'nodejs-app'
           environment: 'development'
