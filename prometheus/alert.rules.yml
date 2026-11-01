@@ -1,0 +1,97 @@
+# Prometheus Alert Rules
+# Defines alerting rules for high CPU usage and application availability
+
+groups:
+  - name: server-monitoring-alerts
+    interval: 30s
+    rules:
+      # Alert: High CPU Usage (Node Exporter)
+      # Triggers when CPU usage exceeds 80% for more than 1 minute
+      - alert: HighCPUUsage
+        expr: |
+          100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 1m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "High CPU usage detected on {{ $labels.instance }}"
+          description: "CPU usage on {{ $labels.instance }} has been above 80% for more than 1 minute. Current value: {{ $value | printf \"%.2f\" }}%"
+
+      # Alert: High Memory Usage (Node Exporter)
+      # Triggers when memory usage exceeds 85% for more than 2 minutes
+      - alert: HighMemoryUsage
+        expr: |
+          (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 2m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "High memory usage detected on {{ $labels.instance }}"
+          description: "Memory usage on {{ $labels.instance }} has been above 85% for more than 2 minutes. Current value: {{ $value | printf \"%.2f\" }}%"
+
+      # Alert: Application Down (Node.js App)
+      # Triggers when the application health check fails
+      - alert: ApplicationDown
+        expr: |
+          up{job="nodejs-app"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          category: application
+        annotations:
+          summary: "Application is down on {{ $labels.instance }}"
+          description: "The Node.js application ({{ $labels.instance }}) has been down for more than 30 seconds."
+
+      # Alert: Application Health Check Failed
+      # Triggers when the custom health gauge reports unhealthy
+      - alert: ApplicationUnhealthy
+        expr: |
+          app_health_status{job="nodejs-app"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          category: application
+        annotations:
+          summary: "Application health check failed on {{ $labels.instance }}"
+          description: "The Node.js application ({{ $labels.instance }}) reports unhealthy status."
+
+      # Alert: High HTTP Request Latency
+      # Triggers when 95th percentile latency exceeds 1 second
+      - alert: HighRequestLatency
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="nodejs-app"}[5m])) by (le)) > 1
+        for: 2m
+        labels:
+          severity: warning
+          category: application
+        annotations:
+          summary: "High HTTP request latency on {{ $labels.instance }}"
+          description: "95th percentile request latency is above 1 second for {{ $labels.instance }}. Current value: {{ $value | printf \"%.2f\" }}s"
+
+      # Alert: High Request Error Rate
+      # Triggers when 5xx error rate exceeds 5%
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_requests_total{job="nodejs-app",status_code=~"5.."}[5m])) / sum(rate(http_requests_total{job="nodejs-app"}[5m])) * 100 > 5
+        for: 1m
+        labels:
+          severity: warning
+          category: application
+        annotations:
+          summary: "High HTTP error rate on {{ $labels.instance }}"
+          description: "Error rate (5xx) is above 5% for {{ $labels.instance }}. Current value: {{ $value | printf \"%.2f\" }}%"
+
+      # Alert: Node Exporter Down
+      # Triggers when Node Exporter is not reachable
+      - alert: NodeExporterDown
+        expr: |
+          up{job="node-exporter"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          category: system
+        annotations:
+          summary: "Node Exporter is down on {{ $labels.instance }}"
+          description: "Node Exporter ({{ $labels.instance }}) has been down for more than 30 seconds. System metrics unavailable."

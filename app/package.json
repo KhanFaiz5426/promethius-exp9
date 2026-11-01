@@ -1,0 +1,14 @@
+{
+  "name": "server-monitoring-app",
+  "version": "1.0.0",
+  "description": "Sample Node.js application for Prometheus monitoring",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "prom-client": "^15.1.0"
+  }
+}

@@ -1,0 +1,49 @@
+# Prometheus Configuration File
+# Scrapes metrics from Node.js app and Node Exporter
+
+global:
+  # Scrape interval set to 5 seconds as required
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+  # External labels to identify this Prometheus instance
+  external_labels:
+    monitor: 'server-monitoring'
+    environment: 'development'
+
+# Alertmanager configuration (optional - not used in this setup)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['alertmanager:9093']
+
+# Rule files for alerting
+rule_files:
+  - 'alert.rules.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node.js Application metrics
+  - job_name: 'nodejs-app'
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['app:3000']
+        labels:
+          service: 'nodejs-app'
+          environment: 'development'
+
+  # Node Exporter for system-level metrics
+  - job_name: 'node-exporter'
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node-exporter'
+          environment: 'development'
