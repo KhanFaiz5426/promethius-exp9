@@ -9,7 +9,7 @@ const client = require('prom-client');
 
 // Create Express application
 const app = express();
-const PORT = 3000;
+const PORT = 3002;
 
 // Create a Registry to register metrics
 const register = new client.Registry();
