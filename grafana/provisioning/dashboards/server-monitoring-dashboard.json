@@ -89,7 +89,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(rate(http_requests_total{job=\"nodejs-app\"}[5m])) by (method, route)",
+          "expr": "sum(rate(http_requests_total{job=\"nodejs-app\", instance=\"app:3002\"}[5m])) by (method, route)",
           "legendFormat": "{{method}} {{route}}",
           "refId": "A"
         }
@@ -115,7 +115,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "up{job=\"nodejs-app\"}",
+          "expr": "up{job=\"nodejs-app\", instance=\"app:3002\"}",
           "legendFormat": "Node.js App",
           "refId": "A"
         }
@@ -141,7 +141,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "app_health_status{job=\"nodejs-app\"}",
+          "expr": "app_health_status{job=\"nodejs-app\", instance=\"app:3002\"}",
           "legendFormat": "Health Check",
           "refId": "A"
         }
@@ -166,7 +166,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"nodejs-app\"}[5m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"nodejs-app\", instance=\"app:3002\"}[5m])) by (le))",
           "legendFormat": "P95 Latency",
           "refId": "A"
         }
@@ -191,7 +191,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(rate(http_requests_total{job=\"nodejs-app\",status_code=~\"5..\"}[5m])) / sum(rate(http_requests_total{job=\"nodejs-app\"}[5m])) * 100",
+          "expr": "sum(rate(http_requests_total{job=\"nodejs-app\", instance=\"app:3002\",status_code=~\"5..\"}[5m])) / sum(rate(http_requests_total{job=\"nodejs-app\", instance=\"app:3002\"}[5m])) * 100",
           "legendFormat": "Error Rate %",
           "refId": "A"
         }
